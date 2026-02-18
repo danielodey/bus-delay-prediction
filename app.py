@@ -201,9 +201,10 @@ selected_stop_id, selected_stop_sequence = stop_options[selected_stop_name]
 # --- Date and time selection ---
 col1, col2 = st.columns(2)
 with col1:
-    selected_date = st.date_input("Select date", value=date.today())
+    selected_date = date.today()
+    st.date_input("Date", value=selected_date, disabled=True)
 with col2:
-    selected_time = st.time_input("Select time", value=datetime.now().time())
+    selected_time = st.time_input("Select time", value=time(12,0))
 
 selected_hour = selected_time.hour
 selected_dow = selected_date.weekday()
