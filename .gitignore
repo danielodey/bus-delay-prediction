@@ -10,3 +10,4 @@ temp_day_*.parquet
 # Python cache
 __pycache__/
 *.pyc
+.streamlit/secrets.toml
