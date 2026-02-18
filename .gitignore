@@ -1,8 +1,15 @@
 # Data files - too large for GitHub
 timetables/
 weather/
-*.parquet
 temp_day_*.parquet
+scotland_bus_delays_synthetic.parquet
+gtfs_rt_all_tags_02.parquet
+
+# Large model file
+random_forest_model.pkl
+
+# Secrets
+.streamlit/secrets.toml
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
@@ -10,4 +17,3 @@ temp_day_*.parquet
 # Python cache
 __pycache__/
 *.pyc
-.streamlit/secrets.toml
