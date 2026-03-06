@@ -33,6 +33,15 @@ model = load_model()
 route_names, headsigns, stop_lookup, feature_cols = load_lookups()
 
 # ============================================================
+# City coordinates (used for nearby places and directions)
+# ============================================================
+CITY_COORDS = {
+    "Edinburgh": {"lat": 55.9533, "lon": -3.1883},
+    "Glasgow": {"lat": 55.8642, "lon": -4.2518},
+    "Paisley": {"lat": 55.8456, "lon": -4.4239},
+}
+
+# ============================================================
 # OpenWeatherMap API - fetch live weather for selected city
 # ============================================================
 def fetch_weather(city):
@@ -118,6 +127,129 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
         return "Overcast"
     else:
         return "Partly cloudy"
+
+
+# ============================================================
+# Overpass API - fetch nearby cafes, restaurants, shops
+# ============================================================
+def fetch_nearby_places(lat, lon, radius=500):
+    """
+    Uses the Overpass API to find cafes, restaurants and shops
+    near the given coordinates within the specified radius (metres).
+    """
+    query = f"""
+    [out:json][timeout:10];
+    (
+      node["amenity"="cafe"](around:{radius},{lat},{lon});
+      node["amenity"="restaurant"](around:{radius},{lat},{lon});
+      node["shop"](around:{radius},{lat},{lon});
+    );
+    out body 10;
+    """
+    url = "https://overpass-api.de/api/interpreter"
+
+    try:
+        response = requests.post(url, data={"data": query}, timeout=15)
+        if response.status_code != 200:
+            return []
+
+        data = response.json()
+        places = []
+        for element in data.get("elements", []):
+            tags = element.get("tags", {})
+            name = tags.get("name")
+            if not name:
+                continue
+
+            place_lat = element.get("lat", lat)
+            place_lon = element.get("lon", lon)
+
+            # Calculate approximate distance in metres
+            dist = haversine(lat, lon, place_lat, place_lon)
+
+            place_type = tags.get("amenity", tags.get("shop", "shop"))
+
+            places.append({
+                "name": name,
+                "type": place_type.title(),
+                "distance_m": round(dist),
+            })
+
+        # Sort by distance and return top 5
+        places.sort(key=lambda x: x["distance_m"])
+        return places[:5]
+
+    except Exception:
+        return []
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    """Calculate distance in metres between two lat/lon points."""
+    R = 6371000
+    phi1 = np.radians(lat1)
+    phi2 = np.radians(lat2)
+    dphi = np.radians(lat2 - lat1)
+    dlam = np.radians(lon2 - lon1)
+    a = np.sin(dphi / 2) ** 2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
+    return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+
+
+# ============================================================
+# OpenRouteService API - fetch alternative routes
+# ============================================================
+def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
+    """
+    Uses OpenRouteService to get walking and driving directions
+    from the bus stop to the destination.
+    """
+    ORS_KEY = st.secrets["ORS_API_KEY"]
+    alternatives = []
+
+    # Walking route
+    try:
+        url = "https://api.openrouteservice.org/v2/directions/foot-walking"
+        headers = {"Authorization": ORS_KEY, "Content-Type": "application/json"}
+        body = {
+            "coordinates": [[start_lon, start_lat], [end_lon, end_lat]],
+            "units": "km"
+        }
+        response = requests.post(url, json=body, headers=headers, timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            route = data["routes"][0]["summary"]
+            walk_mins = round(route["duration"] / 60)
+            walk_km = round(route["distance"], 1)
+            alternatives.append({
+                "mode": "🚶 Walking",
+                "duration": f"{walk_mins} mins",
+                "distance": f"{walk_km} km",
+            })
+    except Exception:
+        pass
+
+    # Driving route (represents bus/taxi alternative)
+    try:
+        url = "https://api.openrouteservice.org/v2/directions/driving-car"
+        headers = {"Authorization": ORS_KEY, "Content-Type": "application/json"}
+        body = {
+            "coordinates": [[start_lon, start_lat], [end_lon, end_lat]],
+            "units": "km"
+        }
+        response = requests.post(url, json=body, headers=headers, timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            route = data["routes"][0]["summary"]
+            drive_mins = round(route["duration"] / 60)
+            drive_km = round(route["distance"], 1)
+            alternatives.append({
+                "mode": "🚗 Taxi / Drive",
+                "duration": f"{drive_mins} mins",
+                "distance": f"{drive_km} km",
+            })
+    except Exception:
+        pass
+
+    return alternatives
 
 
 # ============================================================
@@ -269,6 +401,57 @@ if st.button("Predict Delay", type="primary"):
         if factors:
             st.info(f"Contributing factors: {', '.join(factors)}")
 
-st.markdown("---")
-st.caption("Powered by XGBoost | Weather data from OpenWeatherMap | Bus data from BODS")
+        # ============================================================
+        # Nearby Places (Overpass API) - triggers when delay > 5 mins
+        # ============================================================
+        if prediction > 5:
+            st.markdown("---")
+            st.subheader("☕ Nearby Places to Wait")
+            st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby where you could wait:")
 
+            coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
+            with st.spinner("Searching for nearby places..."):
+                places = fetch_nearby_places(coords["lat"], coords["lon"])
+
+            if places:
+                for place in places:
+                    st.markdown(f"**{place['name']}** — {place['type']} · {place['distance_m']}m away")
+            else:
+                st.caption("No nearby places found within 500m.")
+
+        # ============================================================
+        # Alternative Routes (OpenRouteService) - triggers when delay > 8 mins
+        # ============================================================
+        if prediction > 8:
+            st.markdown("---")
+            st.subheader("🗺️ Alternative Ways to Get There")
+            st.markdown("The delay is long enough that it might be faster to take a different route:")
+
+            coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
+
+            # Get the last stop on the route as the destination
+            last_stop = route_stops.iloc[-1] if len(route_stops) > 0 else None
+
+            if last_stop is not None:
+                # Use city centre as a rough destination proxy
+                # since stop_lookup may not have lat/lon for the final stop
+                dest_coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
+
+                # Offset destination slightly to simulate end of route
+                dest_lat = dest_coords["lat"] + 0.02
+                dest_lon = dest_coords["lon"] + 0.02
+
+                with st.spinner("Checking alternative routes..."):
+                    alternatives = fetch_alternative_routes(
+                        coords["lat"], coords["lon"],
+                        dest_lat, dest_lon
+                    )
+
+                if alternatives:
+                    for alt in alternatives:
+                        st.markdown(f"**{alt['mode']}** — {alt['duration']} ({alt['distance']})")
+                else:
+                    st.caption("Could not find alternative routes at this time.")
+
+st.markdown("---")
+st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
