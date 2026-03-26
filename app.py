@@ -277,7 +277,7 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
 # ============================================================
 # App interface
 # ============================================================
-st.title("🚌 Scotland Bus Delay Predictor")
+st.title("Scotland Bus Delay Predictor")
 st.markdown("Predict how many minutes your bus is likely to be delayed in Edinburgh, Glasgow, or Paisley.")
 
 city = st.selectbox("Select city", ["Edinburgh", "Glasgow", "Paisley"])
@@ -358,7 +358,7 @@ if st.button("Predict Delay", type="primary"):
             st.info(f"Contributing factors: {', '.join(factors)}")
 
         # Nearby Places Section
-        if prediction > 3:
+        if prediction > 0:
             st.markdown("---")
             st.subheader("☕ Nearby Places to Wait")
             st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby:")
