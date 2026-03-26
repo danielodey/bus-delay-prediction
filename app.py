@@ -15,163 +15,204 @@ st.set_page_config(
 )
 
 # ============================================================
-# Custom CSS for modern styling
+# Custom CSS - clean, white, minimal
 # ============================================================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
     .stApp {
-        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+        background: #ffffff;
     }
     
+    /* Header */
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 16px;
-        margin-bottom: 1.5rem;
+        background: #0a1f3f;
+        padding: 2.5rem 2rem;
+        border-radius: 14px;
+        margin-bottom: 2rem;
         text-align: center;
     }
-    .main-header h1 { color: white; font-size: 2rem; font-weight: 700; margin: 0; }
-    .main-header p { color: rgba(255,255,255,0.85); font-size: 1rem; margin-top: 0.5rem; }
-    
-    .weather-card {
-        background: linear-gradient(135deg, #1e3a5f 0%, #1a2940 100%);
-        border: 1px solid rgba(100,150,255,0.15);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
+    .main-header h1 {
+        color: #ffffff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.3px;
     }
-    .prediction-card {
-        background: linear-gradient(135deg, #1a3a2a 0%, #1a2e1a 100%);
-        border: 1px solid rgba(100,255,150,0.15);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        text-align: center;
-    }
-    .places-card {
-        background: linear-gradient(135deg, #3a1a3a 0%, #2e1a2e 100%);
-        border: 1px solid rgba(200,100,255,0.15);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-    }
-    .routes-card {
-        background: linear-gradient(135deg, #3a2a1a 0%, #2e2a1a 100%);
-        border: 1px solid rgba(255,180,100,0.15);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
+    .main-header p {
+        color: rgba(255,255,255,0.65);
+        font-size: 0.95rem;
+        margin-top: 0.4rem;
+        font-weight: 400;
     }
     
-    .section-title {
-        color: #a0b4ff;
-        font-size: 1.1rem;
+    /* Cards */
+    .card {
+        border: 1px solid #e8ecf1;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.2rem 0;
+        background: #ffffff;
+    }
+    
+    .card-header {
+        font-size: 0.8rem;
         font-weight: 600;
-        margin-bottom: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid #f0f2f5;
     }
     
-    .big-metric {
-        font-size: 3rem;
+    .weather-header { color: #2563eb; }
+    .prediction-header { color: #0a1f3f; }
+    .places-header { color: #7c3aed; }
+    .routes-header { color: #b45309; }
+    
+    /* Weather metrics */
+    .weather-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0 0.5rem 0;
+    }
+    .weather-item { text-align: center; flex: 1; }
+    .weather-item .val {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    .weather-item .lbl {
+        font-size: 0.7rem;
+        color: #8896ab;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 0.2rem;
+    }
+    .weather-desc {
+        text-align: center;
+        color: #8896ab;
+        font-size: 0.85rem;
+        margin-top: 0.6rem;
+    }
+    
+    /* Prediction display */
+    .pred-number {
+        font-size: 3.2rem;
         font-weight: 700;
         text-align: center;
-        line-height: 1.2;
+        line-height: 1.1;
+        margin: 0.5rem 0 0.2rem 0;
     }
-    .metric-label {
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.6);
+    .pred-unit {
         text-align: center;
+        font-size: 0.85rem;
+        color: #8896ab;
+        font-weight: 500;
     }
-    
-    .status-badge {
+    .status-pill {
         display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
+        padding: 0.35rem 0.9rem;
+        border-radius: 50px;
         font-weight: 600;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        margin-top: 0.6rem;
     }
-    .status-green { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-    .status-yellow { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
-    .status-orange { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
-    .status-red { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    .pill-green { background: #ecfdf5; color: #059669; }
+    .pill-yellow { background: #fefce8; color: #a16207; }
+    .pill-orange { background: #fff7ed; color: #c2410c; }
+    .pill-red { background: #fef2f2; color: #dc2626; }
     
-    .weather-metrics {
-        display: flex;
-        justify-content: space-around;
-        margin: 1rem 0;
+    .factors-bar {
+        background: #f0f4ff;
+        border-radius: 8px;
+        padding: 0.7rem 1rem;
+        color: #3b5998;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+        font-weight: 500;
     }
-    .weather-metric { text-align: center; }
-    .weather-metric .value { font-size: 1.5rem; font-weight: 700; color: #60a5fa; }
-    .weather-metric .label { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; }
     
-    .place-item {
+    /* Place items */
+    .place-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.6rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #f5f5f7;
     }
-    .place-item:last-child { border-bottom: none; }
-    .place-name { color: #e2e8f0; font-weight: 500; }
-    .place-type { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
-    .place-dist { color: #c084fc; font-weight: 600; font-size: 0.9rem; }
+    .place-row:last-child { border-bottom: none; }
+    .place-name { font-weight: 600; color: #1a1a2e; font-size: 0.95rem; }
+    .place-type { color: #8896ab; font-size: 0.8rem; margin-top: 0.1rem; }
+    .place-dist {
+        color: #7c3aed;
+        font-weight: 700;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
     
-    .route-item {
+    /* Route items */
+    .route-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0.8rem 1rem;
-        background: rgba(255,255,255,0.03);
+        background: #fafafa;
         border-radius: 8px;
         margin: 0.4rem 0;
     }
-    .route-mode { color: #e2e8f0; font-weight: 600; }
-    .route-detail { color: #fbbf24; font-weight: 500; }
+    .route-mode { font-weight: 600; color: #1a1a2e; font-size: 0.95rem; }
+    .route-info { color: #b45309; font-weight: 600; font-size: 0.9rem; }
     
-    .factors-box {
-        background: rgba(59,130,246,0.1);
-        border: 1px solid rgba(59,130,246,0.2);
-        border-radius: 8px;
-        padding: 0.8rem 1rem;
-        color: #93c5fd;
-        font-size: 0.9rem;
-        margin-top: 0.8rem;
+    /* Subtitle text */
+    .card-subtitle {
+        color: #8896ab;
+        font-size: 0.85rem;
+        margin-bottom: 0.8rem;
     }
     
+    /* Footer */
     .app-footer {
         text-align: center;
-        color: rgba(255,255,255,0.25);
-        font-size: 0.75rem;
-        margin-top: 2rem;
-        padding: 1rem 0;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        color: #b0b8c4;
+        font-size: 0.72rem;
+        margin-top: 2.5rem;
+        padding: 1.2rem 0;
+        border-top: 1px solid #f0f2f5;
+        letter-spacing: 0.02em;
     }
     
+    /* Button override */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        background: #0a1f3f !important;
+        color: white !important;
         border: none !important;
         border-radius: 10px !important;
-        padding: 0.6rem 2rem !important;
+        padding: 0.65rem 2rem !important;
         font-weight: 600 !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
         width: 100% !important;
-        transition: all 0.3s ease !important;
+        transition: all 0.2s ease !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
     .stButton > button[kind="primary"]:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(102,126,234,0.4) !important;
+        background: #132d54 !important;
+        box-shadow: 0 4px 12px rgba(10,31,63,0.2) !important;
+    }
+    
+    /* Input labels */
+    .stSelectbox label, .stTimeInput label, .stDateInput label {
+        color: #3d4f6f !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -238,14 +279,9 @@ def fetch_weather(city):
         conditions = map_conditions(weather_main, weather_desc, precip, preciptype)
 
         return {
-            "temp": temp,
-            "humidity": humidity,
-            "windspeed": windspeed,
-            "cloudcover": cloudcover,
-            "precip": precip,
-            "preciptype": preciptype,
-            "conditions": conditions,
-            "description": weather_desc
+            "temp": temp, "humidity": humidity, "windspeed": windspeed,
+            "cloudcover": cloudcover, "precip": precip, "preciptype": preciptype,
+            "conditions": conditions, "description": weather_desc
         }
 
     except Exception as e:
@@ -258,37 +294,23 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
     main = weather_main.lower()
 
     if preciptype == "Snow":
-        if precip >= 4:
-            return "Snow fall: Heavy"
-        elif precip >= 1:
-            return "Snow fall: Moderate"
-        else:
-            return "Snow fall: Slight"
+        if precip >= 4: return "Snow fall: Heavy"
+        elif precip >= 1: return "Snow fall: Moderate"
+        else: return "Snow fall: Slight"
     elif "drizzle" in main or "drizzle" in desc:
-        if precip >= 2:
-            return "Drizzle: Dense"
-        elif precip >= 0.5:
-            return "Drizzle: Moderate"
-        else:
-            return "Drizzle: Light"
+        if precip >= 2: return "Drizzle: Dense"
+        elif precip >= 0.5: return "Drizzle: Moderate"
+        else: return "Drizzle: Light"
     elif preciptype == "Rain":
-        if precip >= 2:
-            return "Rain: Moderate"
-        else:
-            return "Rain: Slight"
+        if precip >= 2: return "Rain: Moderate"
+        else: return "Rain: Slight"
     elif "cloud" in desc or "overcast" in desc:
-        if "few" in desc or "scattered" in desc:
-            return "Partly cloudy"
-        elif "broken" in desc:
-            return "Mainly clear"
-        else:
-            return "Overcast"
-    elif "clear" in desc:
-        return "Clear sky"
-    elif "mist" in desc or "fog" in desc or "haze" in desc:
-        return "Overcast"
-    else:
-        return "Partly cloudy"
+        if "few" in desc or "scattered" in desc: return "Partly cloudy"
+        elif "broken" in desc: return "Mainly clear"
+        else: return "Overcast"
+    elif "clear" in desc: return "Clear sky"
+    elif "mist" in desc or "fog" in desc or "haze" in desc: return "Overcast"
+    else: return "Partly cloudy"
 
 
 # ============================================================
@@ -308,28 +330,21 @@ def fetch_nearby_places(lat, lon, radius=500):
 
     try:
         response = requests.post(url, data={"data": query}, timeout=15)
-        if response.status_code != 200:
-            return []
+        if response.status_code != 200: return []
 
         data = response.json()
         places = []
         for element in data.get("elements", []):
             tags = element.get("tags", {})
             name = tags.get("name")
-            if not name:
-                continue
+            if not name: continue
 
             place_lat = element.get("lat", lat)
             place_lon = element.get("lon", lon)
-
             dist = haversine(lat, lon, place_lat, place_lon)
             place_type = tags.get("amenity", tags.get("shop", "shop"))
 
-            places.append({
-                "name": name,
-                "type": place_type.title(),
-                "distance_m": round(dist),
-            })
+            places.append({"name": name, "type": place_type.title(), "distance_m": round(dist)})
 
         places.sort(key=lambda x: x["distance_m"])
         return places[:5]
@@ -344,8 +359,8 @@ def haversine(lat1, lon1, lat2, lon2):
     phi2 = np.radians(lat2)
     dphi = np.radians(lat2 - lat1)
     dlam = np.radians(lon2 - lon1)
-    a = np.sin(dphi / 2) ** 2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
-    return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+    a = np.sin(dphi/2)**2 + np.cos(phi1)*np.cos(phi2)*np.sin(dlam/2)**2
+    return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
 
 
 # ============================================================
@@ -365,11 +380,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
             route = data["routes"][0]["summary"]
             walk_mins = round(route["duration"] / 60)
             walk_km = round(route["distance"], 1)
-            alternatives.append({
-                "mode": "🚶 Walking",
-                "duration": f"{walk_mins} mins",
-                "distance": f"{walk_km} km",
-            })
+            alternatives.append({"mode": "Walking", "duration": f"{walk_mins} mins", "distance": f"{walk_km} km"})
     except Exception:
         pass
 
@@ -383,11 +394,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
             route = data["routes"][0]["summary"]
             drive_mins = round(route["duration"] / 60)
             drive_km = round(route["distance"], 1)
-            alternatives.append({
-                "mode": "🚗 Taxi / Drive",
-                "duration": f"{drive_mins} mins",
-                "distance": f"{drive_km} km",
-            })
+            alternatives.append({"mode": "Taxi / Drive", "duration": f"{drive_mins} mins", "distance": f"{drive_km} km"})
     except Exception:
         pass
 
@@ -400,17 +407,11 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
 def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
                     hour, is_rush_hour, city, weather):
     features = {
-        "direction_id": direction_id,
-        "stop_sequence": stop_sequence,
-        "day_of_week": day_of_week,
-        "is_weekend": is_weekend,
-        "hour": hour,
-        "temp": weather["temp"],
-        "precip": weather["precip"],
-        "windspeed": weather["windspeed"],
-        "humidity": weather["humidity"],
-        "cloudcover": weather["cloudcover"],
-        "is_rush_hour": is_rush_hour,
+        "direction_id": direction_id, "stop_sequence": stop_sequence,
+        "day_of_week": day_of_week, "is_weekend": is_weekend, "hour": hour,
+        "temp": weather["temp"], "precip": weather["precip"],
+        "windspeed": weather["windspeed"], "humidity": weather["humidity"],
+        "cloudcover": weather["cloudcover"], "is_rush_hour": is_rush_hour,
     }
 
     features["city_Glasgow"] = 1 if city == "Glasgow" else 0
@@ -443,8 +444,8 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>🚌 Scotland Bus Delay Predictor</h1>
-    <p>Real-time delay predictions for Edinburgh, Glasgow & Paisley</p>
+    <h1>Scotland Bus Delay Predictor</h1>
+    <p>Real-time delay predictions for Edinburgh, Glasgow and Paisley</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -489,32 +490,31 @@ if st.button("Predict Delay", type="primary"):
 
     if weather:
         # Weather card
-        st.markdown(f"""
-        <div class="weather-card">
-            <div class="section-title">🌤️ Current Weather in {city}</div>
-            <div class="weather-metrics">
-                <div class="weather-metric">
-                    <div class="value">{weather['temp']:.1f}°C</div>
-                    <div class="label">Temperature</div>
-                </div>
-                <div class="weather-metric">
-                    <div class="value">{weather['windspeed']:.1f}</div>
-                    <div class="label">Wind (km/h)</div>
-                </div>
-                <div class="weather-metric">
-                    <div class="value">{weather['humidity']}%</div>
-                    <div class="label">Humidity</div>
-                </div>
-                <div class="weather-metric">
-                    <div class="value">{weather['cloudcover']}%</div>
-                    <div class="label">Cloud Cover</div>
-                </div>
-            </div>
-            <div style="text-align:center; color: rgba(255,255,255,0.5); font-size: 0.85rem;">
-                {weather['description'].title()}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card">'
+            '<div class="card-header weather-header">Current Weather</div>'
+            '<div class="weather-row">'
+            '<div class="weather-item">'
+            f'<div class="val">{weather["temp"]:.1f}\u00B0C</div>'
+            '<div class="lbl">Temperature</div>'
+            '</div>'
+            '<div class="weather-item">'
+            f'<div class="val">{weather["windspeed"]:.1f}</div>'
+            '<div class="lbl">Wind (km/h)</div>'
+            '</div>'
+            '<div class="weather-item">'
+            f'<div class="val">{weather["humidity"]}%</div>'
+            '<div class="lbl">Humidity</div>'
+            '</div>'
+            '<div class="weather-item">'
+            f'<div class="val">{weather["cloudcover"]}%</div>'
+            '<div class="lbl">Cloud Cover</div>'
+            '</div>'
+            '</div>'
+            f'<div class="weather-desc">{weather["description"].title()}</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         features = build_features(selected_direction_id, selected_stop_sequence, selected_dow,
                                  selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
@@ -523,15 +523,15 @@ if st.button("Predict Delay", type="primary"):
         prediction = round(max(prediction, -3), 1)
 
         if prediction < 0:
-            status_text, status_class, metric_color = "Ahead of Schedule", "status-green", "#4ade80"
+            status_text, pill_class, pred_color = "Ahead of Schedule", "pill-green", "#059669"
         elif prediction <= 3:
-            status_text, status_class, metric_color = "On Time", "status-green", "#4ade80"
+            status_text, pill_class, pred_color = "On Time", "pill-green", "#059669"
         elif prediction <= 5:
-            status_text, status_class, metric_color = "Slightly Delayed", "status-yellow", "#facc15"
+            status_text, pill_class, pred_color = "Slightly Delayed", "pill-yellow", "#a16207"
         elif prediction <= 10:
-            status_text, status_class, metric_color = "Moderately Delayed", "status-orange", "#fb923c"
+            status_text, pill_class, pred_color = "Moderately Delayed", "pill-orange", "#c2410c"
         else:
-            status_text, status_class, metric_color = "Heavily Delayed", "status-red", "#f87171"
+            status_text, pill_class, pred_color = "Heavily Delayed", "pill-red", "#dc2626"
 
         # Contributing factors
         factors = []
@@ -542,59 +542,63 @@ if st.button("Predict Delay", type="primary"):
 
         factors_html = ""
         if factors:
-            factors_html = f'<div class="factors-box">📋 Contributing factors: {", ".join(factors)}</div>'
+            factors_html = f'<div class="factors-bar">Contributing factors: {", ".join(factors)}</div>'
 
         # Prediction card
-        st.markdown(f"""
-        <div class="prediction-card">
-            <div class="section-title" style="justify-content: center;">📊 Prediction</div>
-            <div class="big-metric" style="color: {metric_color};">{prediction:.1f} min</div>
-            <div class="metric-label">Estimated Delay</div>
-            <div style="margin-top: 0.8rem;">
-                <span class="status-badge {status_class}">{status_text}</span>
-            </div>
-            {factors_html}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card">'
+            '<div class="card-header prediction-header">Prediction</div>'
+            '<div style="text-align: center;">'
+            f'<div class="pred-number" style="color: {pred_color};">{prediction:.1f}</div>'
+            '<div class="pred-unit">minutes delay</div>'
+            f'<span class="status-pill {pill_class}">{status_text}</span>'
+            '</div>'
+            f'{factors_html}'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
-        # Nearby Places - same threshold as working code
+        # Nearby Places
         if prediction > 0:
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             with st.spinner("Searching for nearby places..."):
                 places = fetch_nearby_places(coords["lat"], coords["lon"])
 
             if places:
-                places_html = ""
-                for place in places:
-                    places_html += f"""
-                    <div class="place-item">
-                        <div>
-                            <div class="place-name">{place['name']}</div>
-                            <div class="place-type">{place['type']}</div>
-                        </div>
-                        <div class="place-dist">{place['distance_m']}m</div>
-                    </div>
-                    """
-                st.markdown(f"""
-                <div class="places-card">
-                    <div class="section-title">☕ Nearby Places to Wait</div>
-                    <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 0.8rem;">
-                        Your bus is {prediction:.1f} minutes late. Here are some places nearby:
-                    </div>
-                    {places_html}
-                </div>
-                """, unsafe_allow_html=True)
+                items = []
+                for pl in places:
+                    pname = pl["name"]
+                    ptype = pl["type"]
+                    pdist = pl["distance_m"]
+                    items.append(
+                        '<div class="place-row">'
+                        "<div>"
+                        f'<div class="place-name">{pname}</div>'
+                        f'<div class="place-type">{ptype}</div>'
+                        "</div>"
+                        f'<div class="place-dist">{pdist}m</div>'
+                        "</div>"
+                    )
+                places_block = "".join(items)
+                delay_text = f"{prediction:.1f}"
+                st.markdown(
+                    '<div class="card">'
+                    '<div class="card-header places-header">Nearby Places to Wait</div>'
+                    f'<div class="card-subtitle">Your bus is {delay_text} minutes late. Here are some places nearby.</div>'
+                    f'{places_block}'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
             else:
-                st.markdown("""
-                <div class="places-card">
-                    <div class="section-title">☕ Nearby Places to Wait</div>
-                    <div style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
-                        No nearby places found within 500m.
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(
+                    '<div class="card">'
+                    '<div class="card-header places-header">Nearby Places to Wait</div>'
+                    '<div class="card-subtitle">No nearby places found within 500m.</div>'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
 
-        # Alternative Routes - same threshold as working code
+        # Alternative Routes
         if prediction > 3:
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             last_stop = route_stops.iloc[-1] if len(route_stops) > 0 else None
@@ -609,36 +613,39 @@ if st.button("Predict Delay", type="primary"):
                     )
 
                 if alternatives:
-                    routes_html = ""
+                    items = []
                     for alt in alternatives:
-                        routes_html += f"""
-                        <div class="route-item">
-                            <div class="route-mode">{alt['mode']}</div>
-                            <div class="route-detail">{alt['duration']} ({alt['distance']})</div>
-                        </div>
-                        """
-                    st.markdown(f"""
-                    <div class="routes-card">
-                        <div class="section-title">🗺️ Alternative Ways to Get There</div>
-                        <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 0.8rem;">
-                            It might be faster to take a different route:
-                        </div>
-                        {routes_html}
-                    </div>
-                    """, unsafe_allow_html=True)
+                        amode = alt["mode"]
+                        adur = alt["duration"]
+                        adist = alt["distance"]
+                        items.append(
+                            '<div class="route-row">'
+                            f'<div class="route-mode">{amode}</div>'
+                            f'<div class="route-info">{adur} ({adist})</div>'
+                            "</div>"
+                        )
+                    routes_block = "".join(items)
+                    st.markdown(
+                        '<div class="card">'
+                        '<div class="card-header routes-header">Alternative Ways to Get There</div>'
+                        '<div class="card-subtitle">It might be faster to take a different route.</div>'
+                        f'{routes_block}'
+                        '</div>',
+                        unsafe_allow_html=True
+                    )
                 else:
-                    st.markdown("""
-                    <div class="routes-card">
-                        <div class="section-title">🗺️ Alternative Ways to Get There</div>
-                        <div style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
-                            Could not find alternative routes at this time.
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(
+                        '<div class="card">'
+                        '<div class="card-header routes-header">Alternative Ways to Get There</div>'
+                        '<div class="card-subtitle">Could not find alternative routes at this time.</div>'
+                        '</div>',
+                        unsafe_allow_html=True
+                    )
 
 # Footer
-st.markdown("""
-<div class="app-footer">
-    Powered by XGBoost · Weather: OpenWeatherMap · Places: OpenStreetMap · Routes: OpenRouteService · Bus data: BODS
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div class="app-footer">'
+    'Powered by XGBoost &middot; Weather: OpenWeatherMap &middot; Places: OpenStreetMap &middot; Routes: OpenRouteService &middot; Bus data: BODS'
+    '</div>',
+    unsafe_allow_html=True
+)
