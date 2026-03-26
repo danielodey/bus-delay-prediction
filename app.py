@@ -402,7 +402,11 @@ if st.button("Predict Delay", type="primary"):
             st.info(f"Contributing factors: {', '.join(factors)}")
 
         # ============================================================
+<<<<<<< HEAD
         # Nearby Places (Overpass API) - triggers when delay > 3 mins
+=======
+        # Nearby Places (Overpass API) - triggers when delay > 5 mins
+>>>>>>> dd1179f (Time threshold changed)
         # ============================================================
         if prediction > 3:
             st.markdown("---")
@@ -420,7 +424,11 @@ if st.button("Predict Delay", type="primary"):
                 st.caption("No nearby places found within 500m.")
 
         # ============================================================
+<<<<<<< HEAD
         # Alternative Routes (OpenRouteService) - triggers when delay > 3 mins
+=======
+        # Alternative Routes (OpenRouteService) - triggers when delay > 8 mins
+>>>>>>> dd1179f (Time threshold changed)
         # ============================================================
         if prediction > 3:
             st.markdown("---")
@@ -454,4 +462,8 @@ if st.button("Predict Delay", type="primary"):
                     st.caption("Could not find alternative routes at this time.")
 
 st.markdown("---")
+<<<<<<< HEAD
 st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
+=======
+st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
+>>>>>>> dd1179f (Time threshold changed)
