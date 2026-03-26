@@ -133,10 +133,6 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
 # Overpass API - fetch nearby cafes, restaurants, shops
 # ============================================================
 def fetch_nearby_places(lat, lon, radius=500):
-    """
-    Uses the Overpass API to find cafes, restaurants and shops
-    near the given coordinates within the specified radius (metres).
-    """
     query = f"""
     [out:json][timeout:10];
     (
@@ -164,9 +160,7 @@ def fetch_nearby_places(lat, lon, radius=500):
             place_lat = element.get("lat", lat)
             place_lon = element.get("lon", lon)
 
-            # Calculate approximate distance in metres
             dist = haversine(lat, lon, place_lat, place_lon)
-
             place_type = tags.get("amenity", tags.get("shop", "shop"))
 
             places.append({
@@ -175,7 +169,6 @@ def fetch_nearby_places(lat, lon, radius=500):
                 "distance_m": round(dist),
             })
 
-        # Sort by distance and return top 5
         places.sort(key=lambda x: x["distance_m"])
         return places[:5]
 
@@ -184,7 +177,6 @@ def fetch_nearby_places(lat, lon, radius=500):
 
 
 def haversine(lat1, lon1, lat2, lon2):
-    """Calculate distance in metres between two lat/lon points."""
     R = 6371000
     phi1 = np.radians(lat1)
     phi2 = np.radians(lat2)
@@ -198,21 +190,13 @@ def haversine(lat1, lon1, lat2, lon2):
 # OpenRouteService API - fetch alternative routes
 # ============================================================
 def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
-    """
-    Uses OpenRouteService to get walking and driving directions
-    from the bus stop to the destination.
-    """
     ORS_KEY = st.secrets["ORS_API_KEY"]
     alternatives = []
 
-    # Walking route
     try:
         url = "https://api.openrouteservice.org/v2/directions/foot-walking"
         headers = {"Authorization": ORS_KEY, "Content-Type": "application/json"}
-        body = {
-            "coordinates": [[start_lon, start_lat], [end_lon, end_lat]],
-            "units": "km"
-        }
+        body = {"coordinates": [[start_lon, start_lat], [end_lon, end_lat]], "units": "km"}
         response = requests.post(url, json=body, headers=headers, timeout=15)
         if response.status_code == 200:
             data = response.json()
@@ -227,14 +211,10 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
     except Exception:
         pass
 
-    # Driving route (represents bus/taxi alternative)
     try:
         url = "https://api.openrouteservice.org/v2/directions/driving-car"
         headers = {"Authorization": ORS_KEY, "Content-Type": "application/json"}
-        body = {
-            "coordinates": [[start_lon, start_lat], [end_lon, end_lat]],
-            "units": "km"
-        }
+        body = {"coordinates": [[start_lon, start_lat], [end_lon, end_lat]], "units": "km"}
         response = requests.post(url, json=body, headers=headers, timeout=15)
         if response.status_code == 200:
             data = response.json()
@@ -256,7 +236,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
 # Build prediction input matching the 26 model features
 # ============================================================
 def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
-                   hour, is_rush_hour, city, weather):
+                    hour, is_rush_hour, city, weather):
     features = {
         "direction_id": direction_id,
         "stop_sequence": stop_sequence,
@@ -300,37 +280,27 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
 st.title("🚌 Scotland Bus Delay Predictor")
 st.markdown("Predict how many minutes your bus is likely to be delayed in Edinburgh, Glasgow, or Paisley.")
 
-# --- City selection ---
 city = st.selectbox("Select city", ["Edinburgh", "Glasgow", "Paisley"])
 
-# --- Route selection (filtered by city) ---
 city_routes = route_names[route_names["city"] == city].sort_values("display_name")
 route_options = dict(zip(city_routes["display_name"], city_routes["route_id"]))
 selected_route_name = st.selectbox("Select route", list(route_options.keys()))
 selected_route_id = route_options[selected_route_name]
 
-# --- Direction selection (filtered by route) ---
 route_headsigns = headsigns[headsigns["route_id"] == selected_route_id]
-direction_options = {}
-for _, row in route_headsigns.iterrows():
-    direction_options[f"Towards {row['headsign']}"] = row["direction_id"]
+direction_options = {f"Towards {row['headsign']}": row["direction_id"] for _, row in route_headsigns.iterrows()}
 selected_direction_name = st.selectbox("Select direction", list(direction_options.keys()))
 selected_direction_id = direction_options[selected_direction_name]
 
-# --- Stop selection (filtered by route + direction) ---
 route_stops = stop_lookup[
     (stop_lookup["route_id"] == selected_route_id) &
     (stop_lookup["direction_id"] == selected_direction_id)
 ].sort_values("stop_sequence")
 
-stop_options = dict(zip(
-    route_stops["stop_id"] + " (Stop " + route_stops["stop_sequence"].astype(str) + ")",
-    route_stops[["stop_id", "stop_sequence"]].values.tolist()
-))
+stop_options = {f"{row['stop_id']} (Stop {row['stop_sequence']})": [row['stop_id'], row['stop_sequence']] for _, row in route_stops.iterrows()}
 selected_stop_name = st.selectbox("Select stop", list(stop_options.keys()))
 selected_stop_id, selected_stop_sequence = stop_options[selected_stop_name]
 
-# --- Date and time selection ---
 col1, col2 = st.columns(2)
 with col1:
     selected_date = date.today()
@@ -343,9 +313,7 @@ selected_dow = selected_date.weekday()
 selected_is_weekend = 1 if selected_dow >= 5 else 0
 selected_is_rush_hour = 1 if selected_hour in [7, 8, 9, 16, 17, 18] else 0
 
-# --- Predict button ---
 if st.button("Predict Delay", type="primary"):
-
     with st.spinner("Fetching live weather data..."):
         weather = fetch_weather(city)
 
@@ -358,16 +326,8 @@ if st.button("Predict Delay", type="primary"):
         w_col3.metric("Humidity", f"{weather['humidity']}%")
         st.markdown(f"**Conditions:** {weather['description'].title()} | **Cloud Cover:** {weather['cloudcover']}%")
 
-        features = build_features(
-            direction_id=selected_direction_id,
-            stop_sequence=selected_stop_sequence,
-            day_of_week=selected_dow,
-            is_weekend=selected_is_weekend,
-            hour=selected_hour,
-            is_rush_hour=selected_is_rush_hour,
-            city=city,
-            weather=weather
-        )
+        features = build_features(selected_direction_id, selected_stop_sequence, selected_dow,
+                                 selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
 
         prediction = model.predict(features)[0]
         prediction = round(max(prediction, -3), 1)
@@ -389,72 +349,40 @@ if st.button("Predict Delay", type="primary"):
         st.markdown(f"**Status: {status}**")
 
         factors = []
-        if selected_is_rush_hour:
-            factors.append("rush hour traffic")
-        if weather["precip"] > 0:
-            factors.append(f"{weather['conditions'].lower()}")
-        if weather["temp"] <= 0:
-            factors.append("freezing conditions")
-        if weather["windspeed"] > 40:
-            factors.append("high winds")
+        if selected_is_rush_hour: factors.append("rush hour traffic")
+        if weather["precip"] > 0: factors.append(f"{weather['conditions'].lower()}")
+        if weather["temp"] <= 0: factors.append("freezing conditions")
+        if weather["windspeed"] > 40: factors.append("high winds")
 
         if factors:
             st.info(f"Contributing factors: {', '.join(factors)}")
 
-        # ============================================================
-<<<<<<< HEAD
-        # Nearby Places (Overpass API) - triggers when delay > 3 mins
-=======
-        # Nearby Places (Overpass API) - triggers when delay > 5 mins
->>>>>>> dd1179f (Time threshold changed)
-        # ============================================================
+        # Nearby Places Section
         if prediction > 3:
             st.markdown("---")
             st.subheader("☕ Nearby Places to Wait")
-            st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby where you could wait:")
-
+            st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             with st.spinner("Searching for nearby places..."):
                 places = fetch_nearby_places(coords["lat"], coords["lon"])
-
             if places:
                 for place in places:
                     st.markdown(f"**{place['name']}** — {place['type']} · {place['distance_m']}m away")
             else:
                 st.caption("No nearby places found within 500m.")
 
-        # ============================================================
-<<<<<<< HEAD
-        # Alternative Routes (OpenRouteService) - triggers when delay > 3 mins
-=======
-        # Alternative Routes (OpenRouteService) - triggers when delay > 8 mins
->>>>>>> dd1179f (Time threshold changed)
-        # ============================================================
+        # Alternative Routes Section
         if prediction > 3:
             st.markdown("---")
             st.subheader("🗺️ Alternative Ways to Get There")
-            st.markdown("The delay is long enough that it might be faster to take a different route:")
-
+            st.markdown("It might be faster to take a different route:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
-
-            # Get the last stop on the route as the destination
             last_stop = route_stops.iloc[-1] if len(route_stops) > 0 else None
-
             if last_stop is not None:
-                # Use city centre as a rough destination proxy
-                # since stop_lookup may not have lat/lon for the final stop
                 dest_coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
-
-                # Offset destination slightly to simulate end of route
-                dest_lat = dest_coords["lat"] + 0.02
-                dest_lon = dest_coords["lon"] + 0.02
-
+                dest_lat, dest_lon = dest_coords["lat"] + 0.02, dest_coords["lon"] + 0.02
                 with st.spinner("Checking alternative routes..."):
-                    alternatives = fetch_alternative_routes(
-                        coords["lat"], coords["lon"],
-                        dest_lat, dest_lon
-                    )
-
+                    alternatives = fetch_alternative_routes(coords["lat"], coords["lon"], dest_lat, dest_lon)
                 if alternatives:
                     for alt in alternatives:
                         st.markdown(f"**{alt['mode']}** — {alt['duration']} ({alt['distance']})")
@@ -462,8 +390,4 @@ if st.button("Predict Delay", type="primary"):
                     st.caption("Could not find alternative routes at this time.")
 
 st.markdown("---")
-<<<<<<< HEAD
 st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
-=======
-st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
->>>>>>> dd1179f (Time threshold changed)
