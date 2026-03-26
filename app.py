@@ -15,6 +15,168 @@ st.set_page_config(
 )
 
 # ============================================================
+# Custom CSS for modern styling
+# ============================================================
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'DM Sans', sans-serif;
+    }
+    
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    .stApp {
+        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    }
+    
+    .main-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .main-header h1 { color: white; font-size: 2rem; font-weight: 700; margin: 0; }
+    .main-header p { color: rgba(255,255,255,0.85); font-size: 1rem; margin-top: 0.5rem; }
+    
+    .weather-card {
+        background: linear-gradient(135deg, #1e3a5f 0%, #1a2940 100%);
+        border: 1px solid rgba(100,150,255,0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    .prediction-card {
+        background: linear-gradient(135deg, #1a3a2a 0%, #1a2e1a 100%);
+        border: 1px solid rgba(100,255,150,0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        text-align: center;
+    }
+    .places-card {
+        background: linear-gradient(135deg, #3a1a3a 0%, #2e1a2e 100%);
+        border: 1px solid rgba(200,100,255,0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    .routes-card {
+        background: linear-gradient(135deg, #3a2a1a 0%, #2e2a1a 100%);
+        border: 1px solid rgba(255,180,100,0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .section-title {
+        color: #a0b4ff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .big-metric {
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.2;
+    }
+    .metric-label {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.6);
+        text-align: center;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    .status-green { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+    .status-yellow { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+    .status-orange { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+    .status-red { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    
+    .weather-metrics {
+        display: flex;
+        justify-content: space-around;
+        margin: 1rem 0;
+    }
+    .weather-metric { text-align: center; }
+    .weather-metric .value { font-size: 1.5rem; font-weight: 700; color: #60a5fa; }
+    .weather-metric .label { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .place-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .place-item:last-child { border-bottom: none; }
+    .place-name { color: #e2e8f0; font-weight: 500; }
+    .place-type { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    .place-dist { color: #c084fc; font-weight: 600; font-size: 0.9rem; }
+    
+    .route-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+        margin: 0.4rem 0;
+    }
+    .route-mode { color: #e2e8f0; font-weight: 600; }
+    .route-detail { color: #fbbf24; font-weight: 500; }
+    
+    .factors-box {
+        background: rgba(59,130,246,0.1);
+        border: 1px solid rgba(59,130,246,0.2);
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: #93c5fd;
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+    }
+    
+    .app-footer {
+        text-align: center;
+        color: rgba(255,255,255,0.25);
+        font-size: 0.75rem;
+        margin-top: 2rem;
+        padding: 1rem 0;
+        border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 2rem !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(102,126,234,0.4) !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ============================================================
 # Load model and lookup data
 # ============================================================
 @st.cache_resource
@@ -33,7 +195,7 @@ model = load_model()
 route_names, headsigns, stop_lookup, feature_cols = load_lookups()
 
 # ============================================================
-# City coordinates (used for nearby places and directions)
+# City coordinates
 # ============================================================
 CITY_COORDS = {
     "Edinburgh": {"lat": 55.9533, "lon": -3.1883},
@@ -42,7 +204,7 @@ CITY_COORDS = {
 }
 
 # ============================================================
-# OpenWeatherMap API - fetch live weather for selected city
+# OpenWeatherMap API
 # ============================================================
 def fetch_weather(city):
     API_KEY = st.secrets["OPENWEATHER_API_KEY"]
@@ -130,7 +292,7 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
 
 
 # ============================================================
-# Overpass API - fetch nearby cafes, restaurants, shops
+# Overpass API
 # ============================================================
 def fetch_nearby_places(lat, lon, radius=500):
     query = f"""
@@ -187,7 +349,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 # ============================================================
-# OpenRouteService API - fetch alternative routes
+# OpenRouteService API
 # ============================================================
 def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
     ORS_KEY = st.secrets["ORS_API_KEY"]
@@ -233,7 +395,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
 
 
 # ============================================================
-# Build prediction input matching the 26 model features
+# Build features
 # ============================================================
 def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
                     hour, is_rush_hour, city, weather):
@@ -275,11 +437,18 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
 
 
 # ============================================================
-# App interface
+# App Interface
 # ============================================================
-st.title("Scotland Bus Delay Predictor")
-st.markdown("Predict how many minutes your bus is likely to be delayed in Edinburgh, Glasgow, or Paisley.")
 
+# Header
+st.markdown("""
+<div class="main-header">
+    <h1>🚌 Scotland Bus Delay Predictor</h1>
+    <p>Real-time delay predictions for Edinburgh, Glasgow & Paisley</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Selection inputs
 city = st.selectbox("Select city", ["Edinburgh", "Glasgow", "Paisley"])
 
 city_routes = route_names[route_names["city"] == city].sort_values("display_name")
@@ -313,18 +482,39 @@ selected_dow = selected_date.weekday()
 selected_is_weekend = 1 if selected_dow >= 5 else 0
 selected_is_rush_hour = 1 if selected_hour in [7, 8, 9, 16, 17, 18] else 0
 
+# Predict button
 if st.button("Predict Delay", type="primary"):
     with st.spinner("Fetching live weather data..."):
         weather = fetch_weather(city)
 
     if weather:
-        st.markdown("---")
-        st.subheader("Current Weather")
-        w_col1, w_col2, w_col3 = st.columns(3)
-        w_col1.metric("Temperature", f"{weather['temp']:.1f}°C")
-        w_col2.metric("Wind", f"{weather['windspeed']:.1f} km/h")
-        w_col3.metric("Humidity", f"{weather['humidity']}%")
-        st.markdown(f"**Conditions:** {weather['description'].title()} | **Cloud Cover:** {weather['cloudcover']}%")
+        # Weather card
+        st.markdown(f"""
+        <div class="weather-card">
+            <div class="section-title">🌤️ Current Weather in {city}</div>
+            <div class="weather-metrics">
+                <div class="weather-metric">
+                    <div class="value">{weather['temp']:.1f}°C</div>
+                    <div class="label">Temperature</div>
+                </div>
+                <div class="weather-metric">
+                    <div class="value">{weather['windspeed']:.1f}</div>
+                    <div class="label">Wind (km/h)</div>
+                </div>
+                <div class="weather-metric">
+                    <div class="value">{weather['humidity']}%</div>
+                    <div class="label">Humidity</div>
+                </div>
+                <div class="weather-metric">
+                    <div class="value">{weather['cloudcover']}%</div>
+                    <div class="label">Cloud Cover</div>
+                </div>
+            </div>
+            <div style="text-align:center; color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+                {weather['description'].title()}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         features = build_features(selected_direction_id, selected_stop_sequence, selected_dow,
                                  selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
@@ -333,61 +523,122 @@ if st.button("Predict Delay", type="primary"):
         prediction = round(max(prediction, -3), 1)
 
         if prediction < 0:
-            status = "🟢 Ahead of Schedule"
+            status_text, status_class, metric_color = "Ahead of Schedule", "status-green", "#4ade80"
         elif prediction <= 3:
-            status = "🟢 On Time"
+            status_text, status_class, metric_color = "On Time", "status-green", "#4ade80"
         elif prediction <= 5:
-            status = "🟡 Slightly Delayed"
+            status_text, status_class, metric_color = "Slightly Delayed", "status-yellow", "#facc15"
         elif prediction <= 10:
-            status = "🟠 Moderately Delayed"
+            status_text, status_class, metric_color = "Moderately Delayed", "status-orange", "#fb923c"
         else:
-            status = "🔴 Heavily Delayed"
+            status_text, status_class, metric_color = "Heavily Delayed", "status-red", "#f87171"
 
-        st.markdown("---")
-        st.subheader("Prediction")
-        st.metric("Estimated Delay", f"{prediction:.1f} minutes")
-        st.markdown(f"**Status: {status}**")
-
+        # Contributing factors
         factors = []
         if selected_is_rush_hour: factors.append("rush hour traffic")
         if weather["precip"] > 0: factors.append(f"{weather['conditions'].lower()}")
         if weather["temp"] <= 0: factors.append("freezing conditions")
         if weather["windspeed"] > 40: factors.append("high winds")
 
+        factors_html = ""
         if factors:
-            st.info(f"Contributing factors: {', '.join(factors)}")
+            factors_html = f'<div class="factors-box">📋 Contributing factors: {", ".join(factors)}</div>'
 
-        # Nearby Places Section
+        # Prediction card
+        st.markdown(f"""
+        <div class="prediction-card">
+            <div class="section-title" style="justify-content: center;">📊 Prediction</div>
+            <div class="big-metric" style="color: {metric_color};">{prediction:.1f} min</div>
+            <div class="metric-label">Estimated Delay</div>
+            <div style="margin-top: 0.8rem;">
+                <span class="status-badge {status_class}">{status_text}</span>
+            </div>
+            {factors_html}
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Nearby Places - same threshold as working code
         if prediction > 0:
-            st.markdown("---")
-            st.subheader("☕ Nearby Places to Wait")
-            st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             with st.spinner("Searching for nearby places..."):
                 places = fetch_nearby_places(coords["lat"], coords["lon"])
-            if places:
-                for place in places:
-                    st.markdown(f"**{place['name']}** — {place['type']} · {place['distance_m']}m away")
-            else:
-                st.caption("No nearby places found within 500m.")
 
-        # Alternative Routes Section
+            if places:
+                places_html = ""
+                for place in places:
+                    places_html += f"""
+                    <div class="place-item">
+                        <div>
+                            <div class="place-name">{place['name']}</div>
+                            <div class="place-type">{place['type']}</div>
+                        </div>
+                        <div class="place-dist">{place['distance_m']}m</div>
+                    </div>
+                    """
+                st.markdown(f"""
+                <div class="places-card">
+                    <div class="section-title">☕ Nearby Places to Wait</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 0.8rem;">
+                        Your bus is {prediction:.1f} minutes late. Here are some places nearby:
+                    </div>
+                    {places_html}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="places-card">
+                    <div class="section-title">☕ Nearby Places to Wait</div>
+                    <div style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
+                        No nearby places found within 500m.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # Alternative Routes - same threshold as working code
         if prediction > 3:
-            st.markdown("---")
-            st.subheader("🗺️ Alternative Ways to Get There")
-            st.markdown("It might be faster to take a different route:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             last_stop = route_stops.iloc[-1] if len(route_stops) > 0 else None
+
             if last_stop is not None:
                 dest_coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
                 dest_lat, dest_lon = dest_coords["lat"] + 0.02, dest_coords["lon"] + 0.02
-                with st.spinner("Checking alternative routes..."):
-                    alternatives = fetch_alternative_routes(coords["lat"], coords["lon"], dest_lat, dest_lon)
-                if alternatives:
-                    for alt in alternatives:
-                        st.markdown(f"**{alt['mode']}** — {alt['duration']} ({alt['distance']})")
-                else:
-                    st.caption("Could not find alternative routes at this time.")
 
-st.markdown("---")
-st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
+                with st.spinner("Checking alternative routes..."):
+                    alternatives = fetch_alternative_routes(
+                        coords["lat"], coords["lon"], dest_lat, dest_lon
+                    )
+
+                if alternatives:
+                    routes_html = ""
+                    for alt in alternatives:
+                        routes_html += f"""
+                        <div class="route-item">
+                            <div class="route-mode">{alt['mode']}</div>
+                            <div class="route-detail">{alt['duration']} ({alt['distance']})</div>
+                        </div>
+                        """
+                    st.markdown(f"""
+                    <div class="routes-card">
+                        <div class="section-title">🗺️ Alternative Ways to Get There</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 0.8rem;">
+                            It might be faster to take a different route:
+                        </div>
+                        {routes_html}
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+                    <div class="routes-card">
+                        <div class="section-title">🗺️ Alternative Ways to Get There</div>
+                        <div style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
+                            Could not find alternative routes at this time.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+# Footer
+st.markdown("""
+<div class="app-footer">
+    Powered by XGBoost · Weather: OpenWeatherMap · Places: OpenStreetMap · Routes: OpenRouteService · Bus data: BODS
+</div>
+""", unsafe_allow_html=True)
