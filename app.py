@@ -38,14 +38,13 @@ st.markdown("""
         margin-top: 0.4rem;
     }
     .weather-note {
-        background: #f0f4ff;
-        border-radius: 6px;
-        padding: 0.5rem 0.8rem;
-        color: #4a6fa5;
-        font-size: 0.78rem;
-        margin-top: 0.6rem;
-        text-align: center;
-    }
+    background: transparent;
+    border-left: 3px solid #4a6fa5;
+    padding: 0.4rem 0.8rem;
+    color: #4a6fa5;
+    font-size: 0.78rem;
+    margin-top: 0.6rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -213,9 +212,7 @@ def haversine(lat1, lon1, lat2, lon2):
     return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
 
-# ============================================================
 # OpenRouteService API - fetch alternative routes
-# ============================================================
 def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
     ORS_KEY = st.secrets["ORS_API_KEY"]
     alternatives = []
