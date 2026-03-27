@@ -3,20 +3,53 @@ import pandas as pd
 import numpy as np
 import joblib
 import requests
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 
-# ============================================================
 # Page configuration
-# ============================================================
 st.set_page_config(
     page_title="Scotland Bus Delay Predictor",
     page_icon="🚌",
     layout="centered"
 )
 
-# ============================================================
+# Minimal CSS tweaks - hide menu/footer, styled header
+st.markdown("""
+<style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    .app-header {
+        background: #0b2545;
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .app-header h1 {
+        color: #ffffff;
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .app-header p {
+        color: #8da9c4;
+        font-size: 0.9rem;
+        margin-top: 0.4rem;
+    }
+    .weather-note {
+        background: #f0f4ff;
+        border-radius: 6px;
+        padding: 0.5rem 0.8rem;
+        color: #4a6fa5;
+        font-size: 0.78rem;
+        margin-top: 0.6rem;
+        text-align: center;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Load model and lookup data
-# ============================================================
 @st.cache_resource
 def load_model():
     return joblib.load("xgboost_model.pkl")
@@ -32,18 +65,14 @@ def load_lookups():
 model = load_model()
 route_names, headsigns, stop_lookup, feature_cols = load_lookups()
 
-# ============================================================
 # City coordinates (used for nearby places and directions)
-# ============================================================
 CITY_COORDS = {
     "Edinburgh": {"lat": 55.9533, "lon": -3.1883},
     "Glasgow": {"lat": 55.8642, "lon": -4.2518},
     "Paisley": {"lat": 55.8456, "lon": -4.4239},
 }
 
-# ============================================================
 # OpenWeatherMap API - fetch live weather for selected city
-# ============================================================
 def fetch_weather(city):
     API_KEY = st.secrets["OPENWEATHER_API_KEY"]
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city},GB&appid={API_KEY}&units=metric"
@@ -129,9 +158,7 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
         return "Partly cloudy"
 
 
-# ============================================================
 # Overpass API - fetch nearby cafes, restaurants, shops
-# ============================================================
 def fetch_nearby_places(lat, lon, radius=500):
     query = f"""
     [out:json][timeout:10];
@@ -204,7 +231,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
             walk_mins = round(route["duration"] / 60)
             walk_km = round(route["distance"], 1)
             alternatives.append({
-                "mode": "🚶 Walking",
+                "mode": "Walking",
                 "duration": f"{walk_mins} mins",
                 "distance": f"{walk_km} km",
             })
@@ -222,7 +249,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
             drive_mins = round(route["duration"] / 60)
             drive_km = round(route["distance"], 1)
             alternatives.append({
-                "mode": "🚗 Taxi / Drive",
+                "mode": "Taxi / Drive",
                 "duration": f"{drive_mins} mins",
                 "distance": f"{drive_km} km",
             })
@@ -232,9 +259,7 @@ def fetch_alternative_routes(start_lat, start_lon, end_lat, end_lon):
     return alternatives
 
 
-# ============================================================
 # Build prediction input matching the 26 model features
-# ============================================================
 def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
                     hour, is_rush_hour, city, weather):
     features = {
@@ -274,11 +299,15 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
     return df
 
 
-# ============================================================
 # App interface
-# ============================================================
-st.title("Scotland Bus Delay Predictor")
-st.markdown("Predict how many minutes your bus is likely to be delayed in Edinburgh, Glasgow, or Paisley.")
+
+# Styled header
+st.markdown("""
+<div class="app-header">
+    <h1>Scotland Bus Delay Predictor</h1>
+    <p>Real-time delay predictions for Edinburgh, Glasgow and Paisley</p>
+</div>
+""", unsafe_allow_html=True)
 
 city = st.selectbox("Select city", ["Edinburgh", "Glasgow", "Paisley"])
 
@@ -301,10 +330,12 @@ stop_options = {f"{row['stop_id']} (Stop {row['stop_sequence']})": [row['stop_id
 selected_stop_name = st.selectbox("Select stop", list(stop_options.keys()))
 selected_stop_id, selected_stop_sequence = stop_options[selected_stop_name]
 
+# Date and time - date allows today + 3 days, no past dates
 col1, col2 = st.columns(2)
 with col1:
-    selected_date = date.today()
-    st.date_input("Date", value=selected_date, disabled=True)
+    today = date.today()
+    max_date = today + timedelta(days=3)
+    selected_date = st.date_input("Date", value=today, min_value=today, max_value=max_date)
 with col2:
     selected_time = st.time_input("Select time", value=time(12,0))
 
@@ -326,6 +357,15 @@ if st.button("Predict Delay", type="primary"):
         w_col3.metric("Humidity", f"{weather['humidity']}%")
         st.markdown(f"**Conditions:** {weather['description'].title()} | **Cloud Cover:** {weather['cloudcover']}%")
 
+        # Show weather note if date is not today
+        if selected_date != today:
+            st.markdown(
+                '<div class="weather-note">'
+                'Weather data reflects current conditions. For future dates, the prediction assumes similar weather.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
         features = build_features(selected_direction_id, selected_stop_sequence, selected_dow,
                                  selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
 
@@ -333,15 +373,15 @@ if st.button("Predict Delay", type="primary"):
         prediction = round(max(prediction, -3), 1)
 
         if prediction < 0:
-            status = "🟢 Ahead of Schedule"
+            status = "Ahead of Schedule"
         elif prediction <= 3:
-            status = "🟢 On Time"
+            status = "On Time"
         elif prediction <= 5:
-            status = "🟡 Slightly Delayed"
+            status = "Slightly Delayed"
         elif prediction <= 10:
-            status = "🟠 Moderately Delayed"
+            status = "Moderately Delayed"
         else:
-            status = "🔴 Heavily Delayed"
+            status = "Heavily Delayed"
 
         st.markdown("---")
         st.subheader("Prediction")
@@ -357,10 +397,10 @@ if st.button("Predict Delay", type="primary"):
         if factors:
             st.info(f"Contributing factors: {', '.join(factors)}")
 
-        # Nearby Places Section
-        if prediction > 0:
+        # Nearby Places - triggers when delay > 5 mins
+        if prediction > 5:
             st.markdown("---")
-            st.subheader("☕ Nearby Places to Wait")
+            st.subheader("Nearby Places to Wait")
             st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             with st.spinner("Searching for nearby places..."):
@@ -371,10 +411,10 @@ if st.button("Predict Delay", type="primary"):
             else:
                 st.caption("No nearby places found within 500m.")
 
-        # Alternative Routes Section
-        if prediction > 0:
+        # Alternative Routes - triggers when delay > 5 mins
+        if prediction > 5:
             st.markdown("---")
-            st.subheader("🗺️ Alternative Ways to Get There")
+            st.subheader("Alternative Ways to Get There")
             st.markdown("It might be faster to take a different route:")
             coords = CITY_COORDS.get(city, CITY_COORDS["Edinburgh"])
             last_stop = route_stops.iloc[-1] if len(route_stops) > 0 else None
@@ -391,4 +431,3 @@ if st.button("Predict Delay", type="primary"):
 
 st.markdown("---")
 st.caption("Powered by XGBoost | Weather: OpenWeatherMap | Places: OpenStreetMap | Routes: OpenRouteService | Bus data: BODS")
-
