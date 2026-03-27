@@ -41,8 +41,8 @@ st.markdown("""
     background: transparent;
     border-left: 3px solid #4a6fa5;
     padding: 0.4rem 0.8rem;
-    color: #4a6fa5;
-    font-size: 0.78rem;
+    color: #2196F3;
+    font-size: 0.9rem;
     margin-top: 0.6rem;
 }
 </style>
