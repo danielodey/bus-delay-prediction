@@ -398,7 +398,7 @@ if st.button("Predict Delay", type="primary"):
             st.info(f"Contributing factors: {', '.join(factors)}")
 
         # Nearby Places - triggers when delay > 5 mins
-        if prediction > 5:
+        if prediction > 0:
             st.markdown("---")
             st.subheader("Nearby Places to Wait")
             st.markdown(f"Your bus is **{prediction:.1f} minutes late**. Here are some places nearby:")
@@ -412,7 +412,7 @@ if st.button("Predict Delay", type="primary"):
                 st.caption("No nearby places found within 500m.")
 
         # Alternative Routes - triggers when delay > 5 mins
-        if prediction > 5:
+        if prediction > 0:
             st.markdown("---")
             st.subheader("Alternative Ways to Get There")
             st.markdown("It might be faster to take a different route:")
