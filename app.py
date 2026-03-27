@@ -372,7 +372,7 @@ if st.button("Predict Delay", type="primary"):
                 st.caption("No nearby places found within 500m.")
 
         # Alternative Routes Section
-        if prediction > 3:
+        if prediction > 0:
             st.markdown("---")
             st.subheader("🗺️ Alternative Ways to Get There")
             st.markdown("It might be faster to take a different route:")
