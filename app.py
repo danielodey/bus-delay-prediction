@@ -324,7 +324,11 @@ route_stops = stop_lookup[
 ].sort_values("stop_sequence")
 
 # stop_options = {f"{row['stop_id']} (Stop {row['stop_sequence']})": [row['stop_id'], row['stop_sequence']] for _, row in route_stops.iterrows()}
-stop_options = {f"{row['stop_name']} (Stop {row['stop_sequence']})": [row['stop_id'], row['stop_sequence']] for _, row in route_stops.iterrows()}
+stop_options = {
+    f"{row.get('stop_name', row['stop_id'])} (Stop {row['stop_sequence']})": 
+    [row['stop_id'], row['stop_sequence']] 
+    for _, row in route_stops.iterrows()
+}
 selected_stop_name = st.selectbox("Select stop", list(stop_options.keys()))
 selected_stop_id, selected_stop_sequence = stop_options[selected_stop_name]
 
