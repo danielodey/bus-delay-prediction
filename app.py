@@ -341,29 +341,16 @@ if not selected_stop_row.empty:
     
     if pd.notna(stop_lat) and pd.notna(stop_lon):
         st.markdown("**Stop Location**")
-        import pydeck as pdk
-        layer = pdk.Layer(
-            "ScatterplotLayer",
-            data=pd.DataFrame({"lat": [stop_lat], "lon": [stop_lon]}),
-            get_position=["lon", "lat"],
-            get_color=[220, 50, 50, 220],
-            get_radius=30,
-            radius_min_pixels=8,
-            radius_max_pixels=20,
-        )
-        view_state = pdk.ViewState(
-            latitude=stop_lat,
-            longitude=stop_lon,
-            zoom=15,
-            pitch=0,
-        )
-        r = pdk.Deck(
-            layers=[layer],
-            initial_view_state=view_state,
-            map_style="https://tiles.stadiamaps.com/styles/osm_bright.json",
-            tooltip={"text": selected_stop_name},
-        )
-        st.pydeck_chart(r)
+        import folium
+        from streamlit_folium import st_folium
+        m = folium.Map(location=[stop_lat, stop_lon], zoom_start=16)
+        folium.Marker(
+            location=[stop_lat, stop_lon],
+            popup=selected_stop_name,
+            tooltip=selected_stop_name,
+            icon=folium.Icon(color="red", icon="bus", prefix="fa")
+        ).add_to(m)
+        st_folium(m, width=700, height=400)
 
 # ── Date and time ──────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
