@@ -296,7 +296,7 @@ def build_features(direction_id, stop_sequence, day_of_week, is_weekend,
     return df
 
 
-# App interface
+# ── App interface ──────────────────────────────────────────────────────────────
 
 # Styled header
 st.markdown("""
@@ -323,23 +323,34 @@ route_stops = stop_lookup[
     (stop_lookup["direction_id"] == selected_direction_id)
 ].sort_values("stop_sequence")
 
-# stop_options = {f"{row['stop_id']} (Stop {row['stop_sequence']})": [row['stop_id'], row['stop_sequence']] for _, row in route_stops.iterrows()}
 stop_options = {
-    f"{row.get('stop_name', row['stop_id'])} (Stop {row['stop_sequence']})": 
-    [row['stop_id'], row['stop_sequence']] 
+    f"{row.get('stop_name', row['stop_id'])} (Stop {row['stop_sequence']})":
+    [row['stop_id'], row['stop_sequence']]
     for _, row in route_stops.iterrows()
 }
 selected_stop_name = st.selectbox("Select stop", list(stop_options.keys()))
 selected_stop_id, selected_stop_sequence = stop_options[selected_stop_name]
 
-# Date and time - date allows today + 3 days, no past dates
+# ── Stop location map ──────────────────────────────────────────────────────────
+selected_stop_row = route_stops[route_stops["stop_id"] == selected_stop_id]
+
+if not selected_stop_row.empty:
+    stop_lat = selected_stop_row.iloc[0].get("stop_lat")
+    stop_lon = selected_stop_row.iloc[0].get("stop_lon")
+
+    if pd.notna(stop_lat) and pd.notna(stop_lon):
+        st.markdown("**Stop Location**")
+        map_df = pd.DataFrame({"lat": [stop_lat], "lon": [stop_lon]})
+        st.map(map_df, zoom=15)
+
+# ── Date and time ──────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
 with col1:
     today = date.today()
     max_date = today + timedelta(days=3)
     selected_date = st.date_input("Date", value=today, min_value=today, max_value=max_date)
 with col2:
-    selected_time = st.time_input("Select time", value=time(12,0))
+    selected_time = st.time_input("Select time", value=time(12, 0))
 
 selected_hour = selected_time.hour
 selected_dow = selected_date.weekday()
@@ -369,7 +380,7 @@ if st.button("Predict Delay", type="primary"):
             )
 
         features = build_features(selected_direction_id, selected_stop_sequence, selected_dow,
-                                 selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
+                                  selected_is_weekend, selected_hour, selected_is_rush_hour, city, weather)
 
         prediction = model.predict(features)[0]
         prediction = round(max(prediction, -3), 1)
@@ -399,7 +410,7 @@ if st.button("Predict Delay", type="primary"):
         if factors:
             st.info(f"Contributing factors: {', '.join(factors)}")
 
-        # Nearby Places - triggers when delay > 5 mins
+        # Nearby Places - triggers when delay > 0
         if prediction > 0:
             st.markdown("---")
             st.subheader("Nearby Places to Wait")
@@ -413,7 +424,7 @@ if st.button("Predict Delay", type="primary"):
             else:
                 st.caption("No nearby places found within 500m.")
 
-        # Alternative Routes - triggers when delay > 5 mins
+        # Alternative Routes - triggers when delay > 0
         if prediction > 0:
             st.markdown("---")
             st.subheader("Alternative Ways to Get There")
