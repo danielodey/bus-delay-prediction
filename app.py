@@ -338,10 +338,32 @@ if not selected_stop_row.empty:
     stop_lat = selected_stop_row.iloc[0].get("stop_lat")
     stop_lon = selected_stop_row.iloc[0].get("stop_lon")
 
+    
     if pd.notna(stop_lat) and pd.notna(stop_lon):
         st.markdown("**Stop Location**")
-        map_df = pd.DataFrame({"lat": [stop_lat], "lon": [stop_lon]})
-        st.map(map_df, zoom=15)
+        import pydeck as pdk
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=pd.DataFrame({"lat": [stop_lat], "lon": [stop_lon]}),
+            get_position=["lon", "lat"],
+            get_color=[220, 50, 50, 220],
+            get_radius=30,
+            radius_min_pixels=8,
+            radius_max_pixels=20,
+        )
+        view_state = pdk.ViewState(
+            latitude=stop_lat,
+            longitude=stop_lon,
+            zoom=15,
+            pitch=0,
+        )
+        r = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            map_style="road",
+            tooltip={"text": selected_stop_name},
+        )
+        st.pydeck_chart(r)
 
 # ── Date and time ──────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
