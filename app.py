@@ -360,7 +360,7 @@ if not selected_stop_row.empty:
         r = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            map_style="road",
+            map_style="satellite",
             tooltip={"text": selected_stop_name},
         )
         st.pydeck_chart(r)
