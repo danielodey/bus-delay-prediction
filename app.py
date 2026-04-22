@@ -155,62 +155,7 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
         return "Overcast"
     else:
         return "Partly cloudy"
-
-
-# # Overpass API - fetch nearby cafes, restaurants, shops
-# def fetch_nearby_places(lat, lon, radius=500):
-#     query = f"""
-#     [out:json][timeout:10];
-#     (
-#       node["amenity"="cafe"](around:{radius},{lat},{lon});
-#       node["amenity"="restaurant"](around:{radius},{lat},{lon});
-#       node["shop"](around:{radius},{lat},{lon});
-#     );
-#     out body 10;
-#     """
-#     url = "https://overpass-api.de/api/interpreter"
-
-#     try:
-#         response = requests.post(url, data={"data": query}, timeout=15)
-#         if response.status_code != 200:
-#             return []
-
-#         data = response.json()
-#         places = []
-#         for element in data.get("elements", []):
-#             tags = element.get("tags", {})
-#             name = tags.get("name")
-#             if not name:
-#                 continue
-
-#             place_lat = element.get("lat", lat)
-#             place_lon = element.get("lon", lon)
-
-#             dist = haversine(lat, lon, place_lat, place_lon)
-#             place_type = tags.get("amenity", tags.get("shop", "shop"))
-
-#             places.append({
-#                 "name": name,
-#                 "type": place_type.title(),
-#                 "distance_m": round(dist),
-#             })
-
-#         places.sort(key=lambda x: x["distance_m"])
-#         return places[:5]
-
-#     except Exception:
-#         return []
-
-
-# def haversine(lat1, lon1, lat2, lon2):
-#     R = 6371000
-#     phi1 = np.radians(lat1)
-#     phi2 = np.radians(lat2)
-#     dphi = np.radians(lat2 - lat1)
-#     dlam = np.radians(lon2 - lon1)
-#     a = np.sin(dphi / 2) ** 2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
-#     return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
-
+    
 
 # Overpass API - fetch nearby cafes, restaurants, shops
 def fetch_nearby_places(lat, lon, radius=1000):
