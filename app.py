@@ -290,12 +290,12 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
 
     except Exception:
         return []
+# Geoapify API - fetch nearby cafes, restaurants, shops
 def fetch_nearby_places(lat, lon, radius=1000):
     try:
         api_key = st.secrets["GEOAPIFY_API_KEY"]
         url = "https://api.geoapify.com/v2/places"
 
-        # Geoapify requires longitude FIRST then latitude in circle filter
         params = {
             "categories": "catering.restaurant,catering.cafe,catering.fast_food,catering.bar,catering.pub,commercial.supermarket",
             "filter": f"circle:{float(lon)},{float(lat)},{radius}",
@@ -320,7 +320,6 @@ def fetch_nearby_places(lat, lon, radius=1000):
                 if not name:
                     continue
 
-                # GeoJSON is always [longitude, latitude]
                 coords = feature["geometry"]["coordinates"]
                 place_lon = float(coords[0])
                 place_lat = float(coords[1])
@@ -577,7 +576,7 @@ if st.button("Predict Delay", type="primary"):
                 places = fetch_nearby_places(coords["lat"], coords["lon"])
             if places:
                 for place in places:
-                    st.markdown(f"**{place['name']}** — {place['type']} · {place['distance_m']}m away")
+                    st.markdown(f"**{place['name']}** ({place['type']}) {place['distance_m']}m away")
             else:
                 st.caption("No nearby places found within 500m.")
 
