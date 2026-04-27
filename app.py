@@ -235,8 +235,7 @@ def map_conditions(weather_main, weather_desc, precip, preciptype):
 #     return places[:5]
 
 
-# Geoapity API - fetch nearby cafes, restaurants, shops
-def fetch_nearby_places(lat, lon, radius=1000):
+# Geoapity API - fetch nearby cafes, restaurants, shopsdef fetch_nearby_places(lat, lon, radius=1000):
     try:
         api_key = st.secrets["GEOAPIFY_API_KEY"]
         url = "https://api.geoapify.com/v2/places"
@@ -291,7 +290,66 @@ def fetch_nearby_places(lat, lon, radius=1000):
 
     except Exception:
         return []
+def fetch_nearby_places(lat, lon, radius=1000):
+    try:
+        api_key = st.secrets["GEOAPIFY_API_KEY"]
+        url = "https://api.geoapify.com/v2/places"
 
+        # Geoapify requires longitude FIRST then latitude in circle filter
+        params = {
+            "categories": "catering.restaurant,catering.cafe,catering.fast_food,catering.bar,catering.pub,commercial.supermarket",
+            "filter": f"circle:{float(lon)},{float(lat)},{radius}",
+            "bias": f"proximity:{float(lon)},{float(lat)}",
+            "limit": 10,
+            "lang": "en",
+            "apiKey": api_key
+        }
+
+        response = requests.get(url, params=params, timeout=15)
+
+        if response.status_code != 200:
+            return []
+
+        data = response.json()
+        places = []
+
+        for feature in data.get("features", []):
+            try:
+                props = feature.get("properties", {})
+                name = props.get("name")
+                if not name:
+                    continue
+
+                # GeoJSON is always [longitude, latitude]
+                coords = feature["geometry"]["coordinates"]
+                place_lon = float(coords[0])
+                place_lat = float(coords[1])
+
+                dist = haversine(lat, lon, place_lat, place_lon)
+
+                if dist is None or np.isnan(dist):
+                    continue
+
+                categories = props.get("categories", [])
+                if categories:
+                    category = categories[0].split(".")[-1].replace("_", " ").title()
+                else:
+                    category = "Place"
+
+                places.append({
+                    "name": name,
+                    "type": category,
+                    "distance_m": round(dist)
+                })
+
+            except Exception:
+                continue
+
+        places.sort(key=lambda x: x["distance_m"])
+        return places[:5]
+
+    except Exception:
+        return []
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371000
